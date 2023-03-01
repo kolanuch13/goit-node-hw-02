@@ -14,7 +14,7 @@ router.get('/:contactId', async (req, res, next) => {
   const id = req.params.contactId;
   const result = await contacts.getContactById(id);
   console.log(result);
-  if(!result.length) {
+  if(!result) {
     res.status(404).json({
       "status": "Error",
       "code": "404",
@@ -33,7 +33,7 @@ router.delete('/:contactId', async (req, res, next) => {
     const id = req.params.contactId;
     const myContact = await contacts.getContactById(id)
     console.log(myContact);
-    if (!myContact.length) {
+    if (!myContact) {
       res.json({
         "status": "Error",
         "code": "404",
@@ -75,9 +75,23 @@ router.post('/', async (req, res, next) => {
 
 router.put('/:contactId', async (req, res, next) => {
   const id = req.params.contactId;
-  const body = req.body;
-  const result = await contacts.updateContact(id, body)
-  res.json(result)
+  const myContact = await contacts.getContactById(id);
+  const {name, email, phone} = req.body;
+  console.log(myContact.email);
+  const newContact = {
+    id: myContact.id,
+    name: name ? name : myContact.name,
+    email: email ? email : myContact.email,
+    phone: phone ? phone : myContact.phone,
+  }
+  await contacts.removeContact(id);
+  await contacts.addContact(newContact)
+
+  res.json({
+    "status": "success",
+    "code": "200",
+    newContact
+  })
 })
 
 module.exports = router
