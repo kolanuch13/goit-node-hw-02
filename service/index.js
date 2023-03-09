@@ -1,4 +1,5 @@
 const Contact = require('./schemas/contacts')
+const User = require('./schemas/users')
 
 const getAllContacts = async () => {
   return Contact.find();
@@ -24,11 +25,16 @@ const toggleFavorite = (id, fav) => {
   return Contact.findByIdAndUpdate({_id: id}, fav);
 }
 
+const registration = async ({password, email}) => {
+  return User.create({password, email});
+}
+
 module.exports = {
   getAllContacts,
   getContactById,
   addContact,
   removeContact,
   updateContact,
-  toggleFavorite
+  toggleFavorite,
+  registration
 }
