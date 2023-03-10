@@ -21,6 +21,8 @@ app.use(logger(formatsLogger))
 app.use(cors())
 app.use(express.json())
 
+require('./config/config-passport')
+
 app.use('/api/contacts', contactsRouter)
 
 

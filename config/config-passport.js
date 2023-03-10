@@ -8,18 +8,20 @@ const ExtractJWT = passportJWT.ExtractJwt
 const Strategy = passportJWT.Strategy
 const params = {
   secretOrKey: secret,
-  jwtRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
+  jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
 }
 
 passport.use(
   new Strategy(params, (payload, done) => {
-    User.find({_id: payload.id})
-      .then(([user]) => {
-        if(!user) {
-          return done(new Error('User not found'))
-        }
-        return done(null, user)
-      })
-      .catch((err) => done(err))
+    User.findOne({_id: payload.id}, function(err, user) {
+      if (err) {
+          return done(err, false);
+      }
+      if (user) {
+          done(null, user);
+      } else {
+          done(null, false);
+      }
+    })
   })
 )

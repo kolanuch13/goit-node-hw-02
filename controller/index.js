@@ -2,7 +2,6 @@ const service = require('../service/index');
 const User = require('../service/schemas/users');
 const secret = process.env.SECRET_KEY;
 const jwt = require('jsonwebtoken');
-const passport = require('passport');
 
 const get = async (req, res, next) => {
   try {
@@ -108,21 +107,36 @@ const login = async (req, res, next) => {
     email: user.email,
   }
 
-  const token = jwt.sign(payload, secret, {expiresIn: '1h'});
+  const token = jwt.sign(payload, "secret", {expiresIn: '24h'}, secret);
+
   res.status(200).json({
     "token": token, 
     "user": user
   })
 }
 
-const auth = (req, res, next) => {
-    passport.authenticate('jwt', {session:false}, (error, user) => {
-      if(!user||error) {
-        res.status(401).json({"message": "Unauthorized"});
-      }
-      req.user = user;
-      next()  
-    })(req, res, next)
+const logout = async (req, res, next) => {
+  const email = req.body.email;
+  const user = await User.findOne({ email });
+  if (!user) {
+    return res.status(401).json({"message": "Unauthorized"})
+  }
+  res.status(204).json({"message": "No Content"})
+}
+
+const current = async (req, res, next) => {
+  try {
+    const token = req.header('Authorization').replace('Bearer ', '');
+    const decoded = jwt.verify(token, secret);
+    const user = await User.findOne({_id: decoded.id});
+  
+    if (!user) {
+        throw new Error("User cannot find!!");
+    }
+    res.status(200).json({user})
+  } catch (error) {
+    next(error)
+  }
 }
 
 module.exports = {
@@ -134,5 +148,6 @@ module.exports = {
   updateFav,
   register,
   login,
-  auth
+  logout,
+  current
 }
