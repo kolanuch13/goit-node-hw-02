@@ -21,7 +21,7 @@ const checkUserLogin = async (req, res, next) => {
     next()
   } catch (e) {
     console.log(e);
-      res.status(401).send({error: 'Authentication problem!!'})
+    res.status(401).send({error: 'Authentication problem!!'})
   }
 };
 

@@ -3,9 +3,21 @@ const User = require('../service/schemas/users');
 const secret = process.env.SECRET_KEY;
 const jwt = require('jsonwebtoken');
 
+const getUser = async (req, res, next) => {
+  const token = await req.header('Authorization').replace('Bearer ', '');
+  const decoded = await jwt.verify(token, secret);
+  const user = await User.findOne({_id: decoded.id});
+  if(user.token === "") {
+    throw new Error("Unathorized")
+  }
+  return user;
+}
+
 const get = async (req, res, next) => {
   try {
-    const result = await service.getAllContacts();
+    const user = await getUser(req, res, next);
+
+    const result = await service.getAllContacts(user.id);
     res.status(200).json(result)  
   } catch(error) {
     next(error);
@@ -15,7 +27,9 @@ const get = async (req, res, next) => {
 const getById = async (req, res, next) => {
   const id = req.params;
   try {
-    const result = await service.getContactById(id.contactId);
+    const user = await getUser(req, res, next);
+
+    const result = await service.getContactById(id.contactId, user.id);
     if(!result) {
       res.status(404).json({"message": "Not found contact with that id."})
     }
@@ -26,8 +40,11 @@ const getById = async (req, res, next) => {
 }
 
 const create = async (req, res, next) => {
-  const contact = req.body
   try {
+    const user = await getUser(req, res, next);
+
+    const contact = req.body;
+    contact.owner = user.id;
     const result = await service.addContact(contact)
     res.status(201).json(result)
   } catch (error) {
@@ -36,8 +53,13 @@ const create = async (req, res, next) => {
 }
 
 const remove = async (req, res, next) => {
-  const id = req.params;
   try {
+    const id = req.params;
+    const user = await getUser(req, res, next);
+    const contact = await service.getContactById(id.contactId, user.id)
+    if (!contact) {
+      res.status(404).json({"message": "Not found contact with that id."})
+    }
     const result = await service.removeContact(id.contactId);
     if(!result) {
       res.status(404).json({"message": "Not found contact with that id."})
@@ -52,6 +74,11 @@ const update = async (req, res, next) => {
   const id = req.params;
   const info = req.body;
   try {
+    const user = await getUser(req, res, next);
+    const contact = await service.getContactById(id.contactId, user.id)
+    if (!contact) {
+      res.status(404).json({"message": "Not found contact with that id."})
+    } 
     if(!Object.keys(info).length) {
       res.status(400).json({"message": "Missing all field."})
     }
@@ -66,6 +93,11 @@ const updateFav = async (req, res, next) => {
   const id = req.params;
   const info = req.body;
   try {
+    const user = await getUser(req, res, next);
+    const contact = await service.getContactById(id.contactId, user.id)
+    if (!contact) {
+      res.status(404).json({"message": "Not found contact with that id."})
+    } 
     if(!Object.keys(info).includes('favorite')) {
       res.status(400).json({"message": "Missing field favorite."})
     }
@@ -75,6 +107,8 @@ const updateFav = async (req, res, next) => {
     next(error);
   }
 }
+
+// ============================================
 
 const register = async (req, res, next) => {
   const {password, email} = req.body;
@@ -101,16 +135,16 @@ const login = async (req, res, next) => {
   if (!user || !user.validPassword(password)) {
     return res.status(401).json({"message": "Incorrect login or password"})
   }
-
+  
   const payload = {
     id: user.id,
     email: user.email,
   }
-
+  
   const token = jwt.sign(payload, "secret", {expiresIn: '24h'}, secret);
+  await service.login(user.id, token)
 
   res.status(200).json({
-    "token": token, 
     "user": user
   })
 }
@@ -121,6 +155,7 @@ const logout = async (req, res, next) => {
   if (!user) {
     return res.status(401).json({"message": "Unauthorized"})
   }
+  await service.logout(user.id)
   res.status(204).json({"message": "No Content"})
 }
 
@@ -131,9 +166,12 @@ const current = async (req, res, next) => {
     const user = await User.findOne({_id: decoded.id});
   
     if (!user) {
-        throw new Error("User cannot find!!");
+      throw new Error("User cannot find!!");
     }
-    res.status(200).json({user})
+    if (!user.token) {
+      throw new Error("Unauthorised!");
+    }
+    res.status(200).json(user)
   } catch (error) {
     next(error)
   }
