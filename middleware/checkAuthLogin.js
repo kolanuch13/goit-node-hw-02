@@ -3,16 +3,18 @@ const User = require('../service/schemas/users');
 const secret = process.env.SECRET_KEY;
 
 
-const checkUserLogin = async (req, res, next) => {
-  const token = req.header('Authorization').replace('Bearer ', '');
-
+const auth = async (req, res, next) => {
   try {
+    const token = req.header('Authorization').replace('Bearer ', '');
+    if(!token) {
+      res.status(401).json({"message": "Unauthorised."})
+    }
     const decoded = jwt.verify(token, secret);
-
+    
     const user = await User.findOne({_id: decoded.id});
 
     if (!user) {
-        throw new Error("User cannot find!!");
+      throw new Error("User cannot find!!");
     }
 
     req.token = token;
@@ -25,4 +27,4 @@ const checkUserLogin = async (req, res, next) => {
   }
 };
 
-module.exports = {checkUserLogin};
+module.exports = {auth};

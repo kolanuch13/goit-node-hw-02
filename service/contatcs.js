@@ -1,8 +1,7 @@
 const Contact = require('./schemas/contacts')
-const User = require('./schemas/users')
 
-const getAllContacts = async (ownerId) => {
-  return Contact.find({owner: ownerId}).exec();
+const getAllContacts = async (ownerId, page, limit) => {
+  return Contact.find({owner: ownerId}).skip(page*limit).limit(limit).exec();
 }
 
 const getContactById = (id, ownerId) => {
@@ -25,26 +24,11 @@ const toggleFavorite = (id, fav) => {
   return Contact.findByIdAndUpdate({_id: id}, fav);
 }
 
-const registration = async ({password, email}) => {
-  return User.create({password, email});
-}
-
-const login = (id, token) => {
-  return User.findByIdAndUpdate({_id: id}, {token: token});
-}
-
-const logout = (id) => {
-  return User.findByIdAndUpdate({_id: id}, {token: ""});
-}
-
 module.exports = {
   getAllContacts,
   getContactById,
   addContact,
   removeContact,
   updateContact,
-  toggleFavorite,
-  registration,
-  login,
-  logout
+  toggleFavorite
 }

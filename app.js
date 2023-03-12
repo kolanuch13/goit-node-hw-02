@@ -4,9 +4,9 @@ const cors = require('cors')
 const mongoose = require('mongoose')
 require('dotenv').config();
 
-const contactsRouter = require('./api/index')
+const contactsRouter = require('./api/contacts')
+const usersRouter = require('./api/users')
 
-// const DB_HOST = "mongodb+srv://kolanuch13:ekfrp8CqtUdjs2Oi@cluster0.l5tid8d.mongodb.net/db-contacts?retryWrites=true&w=majority";
 mongoose.Promise = global.Promise;
 
 mongoose.connect(process.env.DB_HOST)
@@ -24,7 +24,7 @@ app.use(express.json())
 require('./config/config-passport')
 
 app.use('/api/contacts', contactsRouter)
-
+app.use('/api/users', usersRouter)
 
 app.use((req, res) => {
   res.status(404).json({ message: 'Not found:(' })
