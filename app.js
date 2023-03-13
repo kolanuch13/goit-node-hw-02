@@ -1,15 +1,15 @@
 const express = require('express')
 const logger = require('morgan')
 const cors = require('cors')
-// ========================================================
 const mongoose = require('mongoose')
+require('dotenv').config();
 
-const contactsRouter = require('./api/index')
-// ========================================================
-const DB_HOST = "mongodb+srv://kolanuch13:ekfrp8CqtUdjs2Oi@cluster0.l5tid8d.mongodb.net/db-contacts?retryWrites=true&w=majority";
+const contactsRouter = require('./api/contacts')
+const usersRouter = require('./api/users')
+
 mongoose.Promise = global.Promise;
 
-mongoose.connect(DB_HOST)
+mongoose.connect(process.env.DB_HOST)
   .then(()=>console.log("Database connect"))
   .catch((error)=>console.log(error.message))
 
@@ -21,7 +21,10 @@ app.use(logger(formatsLogger))
 app.use(cors())
 app.use(express.json())
 
+require('./config/config-passport')
+
 app.use('/api/contacts', contactsRouter)
+app.use('/api/users', usersRouter)
 
 app.use((req, res) => {
   res.status(404).json({ message: 'Not found:(' })

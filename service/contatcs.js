@@ -1,15 +1,15 @@
 const Contact = require('./schemas/contacts')
 
-const getAllContacts = async () => {
-  return Contact.find();
+const getAllContacts = async (ownerId, page, limit) => {
+  return Contact.find({owner: ownerId}).skip(page*limit).limit(limit).exec();
 }
 
-const getContactById = (id) => {
-  return Contact.findOne({ _id: id});
+const getContactById = (id, ownerId) => {
+  return Contact.findOne({ _id: id, owner: ownerId});
 }
 
-const addContact = ({name, email, phone, favorite}) => {
-  return Contact.create({name, email, phone, favorite});
+const addContact = ({name, email, phone, favorite, owner}) => {
+  return Contact.create({name, email, phone, favorite, owner});
 }
 
 const removeContact = (id) => {
