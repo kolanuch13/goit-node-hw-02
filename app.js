@@ -1,7 +1,8 @@
-const express = require('express')
-const logger = require('morgan')
-const cors = require('cors')
-const mongoose = require('mongoose')
+const express = require('express');
+const logger = require('morgan');
+const cors = require('cors');
+const mongoose = require('mongoose');
+const multer = require('multer');
 require('dotenv').config();
 
 const contactsRouter = require('./api/contacts')
@@ -20,11 +21,11 @@ const formatsLogger = app.get('env') === 'development' ? 'dev' : 'short'
 app.use(logger(formatsLogger))
 app.use(cors())
 app.use(express.json())
-
 require('./config/config-passport')
 
 app.use('/api/contacts', contactsRouter)
 app.use('/api/users', usersRouter)
+app.use('/static', express.static(__dirname + '/public'));
 
 app.use((req, res) => {
   res.status(404).json({ message: 'Not found:(' })

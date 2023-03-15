@@ -16,9 +16,14 @@ const promote = (id, type) => {
   return User.findByIdAndUpdate({_id: id}, {subscription: type})
 }
 
+const avatar = (id, avatar) => {
+  return User.findByIdAndUpdate({_id: id}, {avatarURL: avatar})
+}
+
 module.exports = {
   registration,
   login,
   logout,
-  promote
+  promote,
+  avatar
 }

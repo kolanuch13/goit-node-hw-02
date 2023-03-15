@@ -2,6 +2,9 @@ const service = require('../service/users');
 const User = require('../service/schemas/users');
 const secret = process.env.SECRET_KEY;
 const jwt = require('jsonwebtoken');
+const gravatar = require('gravatar');
+var Jimp = require("jimp");
+const path = require('path');
 
 const register = async (req, res, next) => {
   const {password, email} = req.body;
@@ -13,6 +16,8 @@ const register = async (req, res, next) => {
 
   try {
     const newUser = new User({email});
+    const avatar = gravatar.url(email);
+    newUser.setAvatar(avatar);
     newUser.setPassword(password);
     await newUser.save();
     res.status(200).json({"user": newUser})
@@ -77,10 +82,27 @@ const subs = async (req, res, next) => {
   }
 }
 
+// ========================================
+
+const avatar = async (req, res, next) => {
+  const user = req.user;
+  try {
+    Jimp.read(`./tmp/${req.file.filename}`, (err, avatar) => {
+      if (err) throw err;
+      avatar.resize(250, 250).write(`./public/avatars/${user.email}.jpg`);
+    });
+    await service.avatar(user.id ,`http://localhost:3000/static/avatars/${user.email}.jpg`)
+    res.status(200).json(user)
+  } catch (error) {
+    next(error)
+  }
+}
+
 module.exports = {
   register,
   login,
   logout,
   current,
-  subs
+  subs,
+  avatar
 }
