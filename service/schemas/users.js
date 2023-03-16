@@ -17,6 +17,7 @@ const user = new Schema  ({
     enum: ["starter", "pro", "business"],
     default: "starter"
   },
+  avatarURL: String,
   token: String
 });
 
@@ -26,6 +27,10 @@ user.methods.setPassword = function(password) {
 
 user.methods.validPassword = function(password) {
   return bCrypt.compareSync(password, this.password);
+};
+
+user.methods.setAvatar = function(picture) {
+  this.avatarURL = 'http:' + picture;
 };
 
 const User = mongoose.model("user", user);
