@@ -3,8 +3,8 @@ const service = require('../service/contatcs');
 const get = async (req, res, next) => {
   try {
     const user = req.user;
-    let page = req.query.page || 0;
-    let size = req.query.size || 0;
+    const page = req.query.page || 0;
+    const size = req.query.size || 0;
 
     const limit = parseInt(size);
     const index = parseInt(page);

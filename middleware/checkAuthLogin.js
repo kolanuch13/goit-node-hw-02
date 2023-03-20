@@ -16,7 +16,6 @@ const auth = async (req, res, next) => {
     if (!user) {
       throw new Error("User cannot find!!");
     }
-
     req.token = token;
     req.user = user;
     req.userID = user._id;
@@ -27,4 +26,14 @@ const auth = async (req, res, next) => {
   }
 };
 
-module.exports = {auth};
+const verify = async (req, res, next) => {
+  try {
+    User.findOne({verify: true});
+    next()
+  } catch(e) {
+    console.log(e);
+    res.status(401).send({error: 'Verification problem!!'})   
+  }
+}
+
+module.exports = {auth, verify};
