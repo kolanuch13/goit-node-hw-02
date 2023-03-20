@@ -20,10 +20,15 @@ const avatar = (id, avatar) => {
   return User.findByIdAndUpdate({_id: id}, {avatarURL: avatar})
 }
 
+const verify = (token) => {
+  return User.findOneAndUpdate({verificationToken: token}, {verify: true})
+}
+
 module.exports = {
   registration,
   login,
   logout,
   promote,
-  avatar
+  avatar,
+  verify
 }

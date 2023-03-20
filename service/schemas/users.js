@@ -17,6 +17,14 @@ const user = new Schema  ({
     enum: ["starter", "pro", "business"],
     default: "starter"
   },
+  verify: {
+    type: Boolean,
+    default: false,
+  },
+  verificationToken: {
+    type: String,
+    required: [true, 'Verify token is required'],
+  },
   avatarURL: String,
   token: String
 });
@@ -31,6 +39,10 @@ user.methods.validPassword = function(password) {
 
 user.methods.setAvatar = function(picture) {
   this.avatarURL = 'http:' + picture;
+};
+
+user.methods.setVerificationToken = function(verificationToken) {
+  this.verificationToken = verificationToken;
 };
 
 const User = mongoose.model("user", user);
