@@ -4,7 +4,7 @@ const secret = process.env.SECRET_KEY;
 const jwt = require('jsonwebtoken');
 const gravatar = require('gravatar');
 const Jimp = require('jimp');
-const nanoid = require('nanoid');
+const { nanoid } = require('nanoid');
 const sgMail = require('@sendgrid/mail');
 sgMail.setApiKey(process.env.SG_TOKEN);
 
@@ -32,8 +32,8 @@ const register = async (req, res, next) => {
       to: email, 
       from: 'cyberwarrior777@ukr.net',
       subject: 'Verification',
-      text: `Wats up man? It's galaxy community! You have to go for this link to verify in our team http://localhost:3000/users/verify/:${verificationToken}`,
-      html: '<strong>and easy to do anywhere, even with Node.js</strong>',
+      text: `Wats up man? It's galaxy community! You have to go for this link to verify in our team http://localhost:3000/users/verify/:verificationToken`,
+      html: `<strong><a href="http://localhost:3000/api/users/verify/${user.verificationToken}">Click me!</a></strong>`,
     }
     sgMail
       .send(msg)
@@ -127,7 +127,8 @@ const avatar = async (req, res, next) => {
 // ========================================
 
 const verify = async (req, res, next) => {
-  const verificationToken = req.params;
+  const verificationToken = req.params.verificationToken;
+  console.log(verificationToken);
   try {
     await service.verify(verificationToken)
     res.status(200).json({"message": 'Verification successful'})
@@ -151,7 +152,7 @@ const reVerify = async (req, res, next) => {
       from: 'cyberwarrior777@ukr.net',
       subject: 'Verification',
       text: `Wats up man? It's galaxy community! You have to go for this link to verify in our team http://localhost:3000/users/verify/:${user.verificationToken}`,
-      html: '<strong>and easy to do anywhere, even with Node.js</strong>',
+      html: `<strong><a href="http://localhost:3000/api/users/verify/${user.verificationToken}">Click me!</a></strong>`,
     }
     sgMail
       .send(msg)

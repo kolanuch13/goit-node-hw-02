@@ -6,7 +6,7 @@ const upload = require('../middleware/avatar');
 
 router.post('/register', ctrlUsers.register);
 
-router.post('/login', ctrlUsers.login);
+router.post('/login', check.verify, ctrlUsers.login);
 
 router.post('/logout', check.auth, ctrlUsers.logout);
 
@@ -18,7 +18,7 @@ router.post('/avatar', check.auth, upload.single('picture'), ctrlUsers.avatar);
 
 // ===============================================================================
 
-router.get('/verify/:verificationToken', check.auth, ctrlUsers.verify)
+router.get('/verify/:verificationToken', ctrlUsers.verify)
 
 router.post('/verify', check.auth, ctrlUsers.reVerify)
 
