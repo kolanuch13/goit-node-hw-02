@@ -16,8 +16,6 @@ router.patch('/', check.auth, ctrlUsers.subs);
 
 router.post('/avatar', check.auth, upload.single('picture'), ctrlUsers.avatar);
 
-// ===============================================================================
-
 router.get('/verify/:verificationToken', ctrlUsers.verify)
 
 router.post('/verify', check.auth, ctrlUsers.reVerify)
