@@ -8,9 +8,6 @@ const { nanoid } = require('nanoid');
 const sgMail = require('@sendgrid/mail');
 sgMail.setApiKey(process.env.SG_TOKEN);
 
-
-// const path = require('path');
-
 const register = async (req, res, next) => {
   const {password, email} = req.body;
   const user = await User.findOne({ email });
